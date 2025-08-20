@@ -236,7 +236,7 @@ def smp_test(
         output_path,
         "confusion_matrix_normalized.png",
     )
-    iou_path = os.path.join(output_path, "iou_per_class")
+    iou_path = os.path.join(output_path, "metrics_per_class")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
