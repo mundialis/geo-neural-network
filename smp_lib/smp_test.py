@@ -184,7 +184,7 @@ def evaluate_model(
 
     # Save confusion matrix plot if requested
     if save_plot_path:
-        fig, ax = confmat.plot(
+        fig, _ax = confmat.plot(
             labels=class_names,
             add_text=True,
         )  # Set add_text=True to show values in cells
@@ -195,7 +195,7 @@ def evaluate_model(
 
     if save_norm_plot_path:
         cm_tensor_norm = cm_tensor / cm_tensor.sum(dim=-1, keepdim=True)
-        fig, ax = confmat.plot(
+        fig, _ax = confmat.plot(
             val=cm_tensor_norm,
             labels=class_names,
             add_text=True,
