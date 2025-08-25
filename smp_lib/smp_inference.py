@@ -67,6 +67,8 @@ def read_image_gdal(filename, driver, output_file):
     )
     seg_map.SetGeoTransform(trans)
     seg_map.SetProjection(proj)
+    # Set no data to 255 -> assuming no classification with 255 classes
+    seg_map.GetRasterBand(1).SetNoDataValue(255)
 
     # close GDAL dataset
     ds = None
@@ -157,11 +159,20 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
             mode="bilinear",
             align_corners=False,
         )
+        # Evaluate model output to discrete classes
+        # + preserve nan values as no-data value
+        # (here the no-data value is 255)
         if num_classes > 2:
+            nan_mask = np.all(np.isnan(mask[0].cpu().numpy()), 0)
             mask = mask[0].argmax(0).cpu().numpy()
+            mask[nan_mask] = 255
         else:
             # mask = mask[0].sigmoid()
-            mask = (mask[0] > 0.5).cpu().numpy()
+            nan_mask = np.isnan(mask[0].cpu().numpy())
+            mask_filter = (mask[0] > 0.5).cpu().numpy()
+            # object type to allow saving no data value (not only boolean)
+            mask = mask_filter.astype(object)
+            mask[nan_mask] = 255
 
         # write output with GDAL
         seg_map.WriteArray(mask)
