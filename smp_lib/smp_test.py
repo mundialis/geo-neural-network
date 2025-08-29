@@ -89,6 +89,7 @@ class GdalImageDataset(BaseDataset):
                 print(
                     f"ERROR: label file <{os.path.join(lbl_dir, mask_id)}> "
                     "does not exist",
+                    file=sys.stderr,
                 )
                 sys.exit(1)
 
@@ -225,7 +226,10 @@ def smp_test(
     """
     class_names = [x.strip() for x in class_names.split(",")]
     if len(class_names) != num_classes:
-        print("Number of class names does not match number of classes!")
+        print(
+            "Number of class names does not match number of classes!",
+            file=sys.stderr,
+        )
 
     if not Path(output_path).exists():
         Path(output_path).mkdir()
@@ -262,7 +266,7 @@ def smp_test(
     )
 
     # Compute confusion matrix and save plot
-    print("evaluating the model ...")
+    print("evaluating the model ...", file=sys.stderr)
     cm = evaluate_model(
         model,
         test_loader,
@@ -315,4 +319,4 @@ def smp_test(
     # print("\nnormalized", file=f)
     # print(cm_np_norm, file=f)
 
-    print(f"IoU per class saved to: {iou_path}")
+    print(f"Metrics saved to: {iou_path}", file=sys.stderr)
