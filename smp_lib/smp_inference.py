@@ -27,6 +27,7 @@
 # https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/examples/upernet_inference_pretrained.ipynb
 
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -122,7 +123,7 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
     images_fps = [os.path.join(x_test_dir, image_id) for image_id in ids]
     """
 
-    print("inference ...")
+    print("inference ...", file=sys.stderr)
     # loop over images (image file paths
     for filename, image_fp in zip(ids, images_fps):
         output_file = os.path.join(output_path, filename)
@@ -179,4 +180,4 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
         # close GDAL dataset
         seg_map = None
 
-    print("done")
+    print("done", file=sys.stderr)
