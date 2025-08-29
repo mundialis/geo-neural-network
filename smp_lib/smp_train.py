@@ -37,12 +37,12 @@ import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
 from osgeo import gdal
+from pytorch_lightning.loggers import CSVLogger
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset as BaseDataset
 
 
-# from mmsegmentation LoadSingleRSImageFromFile()
 def read_image_gdal(filename):
     """Args:
     filename (string): path to file to read with GDAL.
@@ -94,6 +94,7 @@ class GdalImageDataset(BaseDataset):
                 print(
                     f"ERROR: label file <{os.path.join(lbl_dir, mask_id)}> "
                     "does not exist",
+                    file=sys.stderr,
                 )
                 sys.exit(1)
 
@@ -235,6 +236,7 @@ class PlModule(pl.LightningModule):
         self.best_loss = 1000
         self.current_loss = 1000
         self.best_model_path = None
+        self.best_epoch = -1
         self.model_path_base = model_path_base.rstrip("/")
         self.t_max = t_max
 
@@ -328,29 +330,19 @@ class PlModule(pl.LightningModule):
         fn = torch.cat([x["fn"] for x in outputs])
         tn = torch.cat([x["tn"] for x in outputs])
 
-        # Per-image IoU and dataset IoU calculations
-        per_image_iou = smp.metrics.iou_score(
-            tp,
-            fp,
-            fn,
-            tn,
-            reduction="micro-imagewise",
-        )
+        # metric calculations
         dataset_iou = smp.metrics.iou_score(tp, fp, fn, tn, reduction="micro")
         dataset_acc = smp.metrics.accuracy(tp, fp, fn, tn, reduction="micro")
-        dataset_prec = smp.metrics.precision(tp, fp, fn, tn, reduction="macro")
-        dataset_recall = smp.metrics.recall(tp, fp, fn, tn, reduction="macro")
+        dataset_f1 = smp.metrics.f1_score(tp, fp, fn, tn, reduction="macro")
 
         # loss
         loss = torch.stack([x["loss"] for x in outputs])
         dataset_loss = torch.mean(loss)
 
         metrics = {
-            f"{stage}_per_image_iou": per_image_iou,
             f"{stage}_dataset_iou": dataset_iou,
             f"{stage}_dataset_accuracy": dataset_acc,
-            f"{stage}_dataset_precision": dataset_prec,
-            f"{stage}_dataset_recall": dataset_recall,
+            f"{stage}_dataset_f1_score": dataset_f1,
             f"{stage}_dataset_loss": dataset_loss,
         }
 
@@ -388,7 +380,7 @@ class PlModule(pl.LightningModule):
             best_model_path = (
                 f"{self.model_path_base}_epoch{self.current_epoch}"
             )
-            print("\nsaving new best model...\n")
+            print("\nsaving new best model...\n", file=sys.stderr)
             self.model.save_pretrained(best_model_path, push_to_hub=False)
             if self.best_model_path:
                 try:
@@ -397,6 +389,7 @@ class PlModule(pl.LightningModule):
                     shutil.rmtree(self.best_model_path, ignore_errors=True)
 
             self.best_model_path = best_model_path
+            self.best_epoch = self.current_epoch
 
     # ruff:noqa:ARG002 # Unused method argument
     def test_step(self, batch, batch_idx):
@@ -443,6 +436,7 @@ def smp_train(
     encoder_weights="imagenet",
     input_model_path=None,
     output_model_path=None,
+    output_train_metrics_path=None,
     epochs=50,
     batch_size=8,
 ):
@@ -460,12 +454,13 @@ def smp_train(
         encoder_weights (string): name of pretrained weights, default "imagenet"
         input_model_path (string): path to trained and locally saved model
         output_model_path (string): path to save new model
+        output_train_metrics_path (string): path to save training metrics
         epochs (int): number of epochs for training
         batch_size (int): batch size for training
 
     """
     if output_model_path is None:
-        print("ERROR: output model path is required.")
+        print("ERROR: output model path is required.", file=sys.stderr)
         sys.exit(1)
 
     # dataset definitions
@@ -515,6 +510,7 @@ def smp_train(
         if not Path(input_model_path).exists():
             print(
                 f"ERROR: input model path {input_model_path} does not exist.",
+                file=sys.stderr,
             )
             sys.exit(1)
 
@@ -524,10 +520,14 @@ def smp_train(
         if not model:
             print(
                 f"ERROR: failed to load input model from {input_model_path}.",
+                file=sys.stderr,
             )
             sys.exit(1)
     else:
-        print(f"loading model {model_arch} with encoder {encoder_name} ...")
+        print(
+            f"loading model {model_arch} with encoder {encoder_name} ...",
+            file=sys.stderr,
+        )
         # handling special cases
         model_kwargs = {}
         if batch_size < 6 and model_arch.lower() in {"upernet", "manet"}:
@@ -560,7 +560,17 @@ def smp_train(
     )
     # small batchsizes: do not use batchnorm because pytorch batch_norm fails with small batch sizes
 
-    print("setting up pl trainer ...")
+    print("setting up pl trainer ...", file=sys.stderr)
+
+    # logger for training metrics
+    p_abs = Path(output_train_metrics_path).absolute()
+    p_base = Path(p_abs).name
+    p_dir = Path(p_abs).parent
+    logger = CSVLogger(
+        p_dir,
+        name=None,
+        version=f"{p_base}",
+    )
 
     # checkpoint callback
     # https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html#lightning.pytorch.callbacks.ModelCheckpoint
@@ -573,15 +583,24 @@ def smp_train(
     # validation iou, precision, recall are all and always 0
     # without this callback, metrics improve as expected
     trainer = pl.Trainer(
+        logger=logger,
         max_epochs=epochs,
         log_every_n_steps=1,
+        enable_checkpointing=False,
     )
 
-    print("training ...")
+    print("training ...", file=sys.stderr)
     trainer.fit(
         mymodule,
         train_dataloaders=train_loader,
         val_dataloaders=valid_loader,
     )
 
-    mymodule.model.save_pretrained(output_model_path, push_to_hub=False)
+    if mymodule.best_model_path:
+        # rename best_model_path to output_model_path
+        Path(mymodule.best_model_path).rename(output_model_path)
+    else:
+        mymodule.model.save_pretrained(output_model_path, push_to_hub=False)
+
+    if mymodule.best_epoch > 0:
+        print(f"best epoch: {mymodule.best_epoch}", file=sys.stderr)
