@@ -25,7 +25,8 @@
 # https://github.com/qubvel-org/segmentation_models.pytorch
 
 # based on
-# https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/examples/camvid_segmentation_multiclass.ipynb
+# https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/
+# examples/camvid_segmentation_multiclass.ipynb
 
 import os
 import shutil
@@ -176,7 +177,8 @@ def get_training_augmentation(img_size=512):
                     contrast_limit=0.5,
                     p=0.5,
                 ),
-                # albumentations.HueSaturationValue(p=1), # only grayscale or RGB
+                # only grayscale or RGB
+                # albumentations.HueSaturationValue(p=1),
             ],
             p=0.9,
         ),
@@ -209,8 +211,12 @@ class PlModule(pl.LightningModule):
         # Preprocessing parameters for image normalization
         # params = smp.encoders.get_preprocessing_params(encoder_name)
         self.number_of_classes = out_classes
-        # self.register_buffer("std", torch.tensor(params["std"]).view(1, 3, 1, 1))
-        # self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 3, 1, 1))
+        # self.register_buffer(
+        #     "std", torch.tensor(params["std"]).view(1, 3, 1, 1)
+        # )
+        # self.register_buffer(
+        #     "mean", torch.tensor(params["mean"]).view(1, 3, 1, 1)
+        # )
         self.mean = 125.5
         self.std = 100.2
 
@@ -281,7 +287,8 @@ class PlModule(pl.LightningModule):
             # Ensure the logits mask is contiguous
             logits_mask = logits_mask.contiguous()
 
-        # Compute loss using given loss fn (pass original mask, not one-hot encoded)
+        # Compute loss using given loss fn (pass original mask, not one-hot
+        # encoded)
         loss = self.loss_fn(logits_mask, mask)
 
         if self.number_of_classes > 1:
@@ -451,7 +458,8 @@ def smp_train(
             see https://smp.readthedocs.io/en/latest/models.html
         encoder_name (string): name of the encoder,
             see https://smp.readthedocs.io/en/latest/encoders.html
-        encoder_weights (string): name of pretrained weights, default "imagenet"
+        encoder_weights (string): name of pretrained weights, default
+                                  "imagenet"
         input_model_path (string): path to trained and locally saved model
         output_model_path (string): path to save new model
         output_train_metrics_path (string): path to save training metrics
@@ -545,8 +553,10 @@ def smp_train(
             **model_kwargs,
         )
 
-    # The number of iteration per epoch is calculated by number_of_samples / batch_size ??
-    # the number of iterations per epoch is reported for each epoch during training: cross-check
+    # The number of iteration per epoch is calculated by number_of_samples /
+    # batch_size ??
+    # the number of iterations per epoch is reported for each epoch during
+    # training: cross-check
     # T_MAX = EPOCHS * math.ceil(len(train_loader) / BATCH_SIZE)
     # no, T_MAX too low, undulating training curves
     t_max = epochs * len(train_loader)
@@ -558,7 +568,8 @@ def smp_train(
         model_path_base=output_model_path,
         t_max=t_max,
     )
-    # small batchsizes: do not use batchnorm because pytorch batch_norm fails with small batch sizes
+    # small batchsizes: do not use batchnorm because pytorch batch_norm fails
+    # with small batch sizes
 
     print("setting up pl trainer ...", file=sys.stderr)
 
@@ -573,13 +584,15 @@ def smp_train(
     )
 
     # checkpoint callback
-    # https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html#lightning.pytorch.callbacks.ModelCheckpoint
-    # After training finishes, use best_model_path to retrieve the path to the best checkpoint file and best_model_score to retrieve its score.
+    # https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks
+    # .ModelCheckpoint.html#lightning.pytorch.callbacks.ModelCheckpoint
+    # After training finishes, use best_model_path to retrieve the path to the
+    # best checkpoint file and best_model_score to retrieve its score.
 
     # https://lightning.ai/docs/pytorch/stable/common/trainer.html
     # !!! the ModelCheckpoint destroys the metrics,
-    # there is no improvement during training when using the callback ModelCheckpoint
-    # validation loss remains constant
+    # there is no improvement during training when using the
+    # callback ModelCheckpoint validation loss remains constant
     # validation iou, precision, recall are all and always 0
     # without this callback, metrics improve as expected
     trainer = pl.Trainer(
