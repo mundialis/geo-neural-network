@@ -11,11 +11,10 @@ pip install geo-neural-network
 ## DEV setup
 
 ```bash
-pip-tools is required for DEV setup:
-
+# pip-tools is required for DEV setup:
 # only once
 pip3 install pip-tools
-then install grass-gis-helpers from the local repository:
 
+#then install geo-neural-network from the local repository:
 pip3 install -e .
 ```
