@@ -591,8 +591,8 @@ def smp_train(
 
     # https://lightning.ai/docs/pytorch/stable/common/trainer.html
     # !!! the ModelCheckpoint destroys the metrics,
-    # ModelCheckpoint there is no improvement during training when using the
-    # callback validation loss remains constant
+    # there is no improvement during training when using the
+    # callback ModelCheckpoint validation loss remains constant
     # validation iou, precision, recall are all and always 0
     # without this callback, metrics improve as expected
     trainer = pl.Trainer(
