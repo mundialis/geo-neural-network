@@ -2,13 +2,11 @@
 
 Python library for neural network analysis with geodata.
 
-
 ## Installation
 
 ```bash
 pip install geo-neural-network
 ```
-
 
 ## DEV setup
 
