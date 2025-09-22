@@ -1,0 +1,6 @@
+[flake8]
+
+line-length = 79
+
+# ignore E203 (see https://github.com/psf/black/issues/315)
+# extend-ignore = E203

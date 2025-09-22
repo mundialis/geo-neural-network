@@ -24,7 +24,8 @@
 # use this locally saved model for inference
 
 # adapted from
-# https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/examples/upernet_inference_pretrained.ipynb
+# https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/
+# examples/upernet_inference_pretrained.ipynb
 
 import os
 import sys
@@ -110,8 +111,8 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
     images_fps = [os.path.join(x_test_dir, image_id) for image_id in ids]
 
     # only tif, jp2 and vrt
-    # TODO: Statt alle tif, vrt oder jp2 Dateien in einem Ordner zu nehmen, eine
-    # Textdatei mit den Dateinamen einlesen
+    # TODO: Statt alle tif, vrt oder jp2 Dateien in einem Ordner zu nehmen,
+    # eine Textdatei mit den Dateinamen einlesen
     # Note: in der Textdatei könnten auch GDAL subdatasets,
     # z.B. NETCDF:"sst.nc":tos definiert werden.
     """
@@ -145,7 +146,8 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
 
         input_tensor = torch.as_tensor(normalized_image)
         # image is already CHW
-        # input_tensor = input_tensor.permute(2, 0, 1).unsqueeze(0)  # HWC -> BCHW
+        # input_tensor = input_tensor.permute(2, 0, 1).unsqueeze(0)
+        #       HWC -> BCHW
         input_tensor = input_tensor.unsqueeze(0)  # CHW -> BCHW
         input_tensor = input_tensor.to(device)
 
