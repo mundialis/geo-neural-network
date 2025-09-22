@@ -1,0 +1,18 @@
+
+[lint]
+ignore = [
+    "ANN001", # missing type annotation
+    "ANN201", # Missing return type annotation for public function
+    "ANN204", # Missing return type annotation for special method `__getitem__`
+    "BLE001", # catch blind exception
+    "D205",
+    "PLR0913", # Too many arguments in function definition (7 > 5)
+    "PLR0914",
+    "PLR0917", # Too many positional arguments (7/5)
+    "PLR2004", # e.g. Magic value used in comparison, consider replacing `100` with a constant variable
+    "PTH118",
+    "PTH123",
+    "PTH208",
+    "S101", # Use of `assert` detected
+    "TRY003", # Avoid specifying long messages outside the exception class
+]
