@@ -20,8 +20,8 @@
 #############################################################################
 """
 
-# after a model from segmentation_models.pytorch has been trained (and finetuned)
-# use this locally saved model for inference
+# after a model from segmentation_models.pytorch has been trained (and
+# finetuned) use this locally saved model for inference
 
 # adapted from
 # https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/
