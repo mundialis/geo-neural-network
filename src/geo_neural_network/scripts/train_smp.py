@@ -95,13 +95,19 @@ if __name__ == "__main__":
 
     config = {}
     config["data_dir"] = confparser.get("settings.dataset", "data_dir")
-    config["in_channels"] = int(confparser.get("settings.dataset", "in_channels"))
-    config["out_classes"] = int(confparser.get("settings.dataset", "out_classes"))
+    config["in_channels"] = int(
+        confparser.get("settings.dataset", "in_channels")
+    )
+    config["out_classes"] = int(
+        confparser.get("settings.dataset", "out_classes")
+    )
     config["img_size"] = int(confparser.get("settings.dataset", "img_size"))
 
     config["model_arch"] = confparser.get("settings.model", "model_arch")
     config["encoder_name"] = confparser.get("settings.model", "encoder_name")
-    config["encoder_weights"] = confparser.get("settings.model", "encoder_weights")
+    config["encoder_weights"] = confparser.get(
+        "settings.model", "encoder_weights"
+    )
     config["epochs"] = int(confparser.get("settings.model", "epochs"))
     config["batch_size"] = int(confparser.get("settings.model", "batch_size"))
 
@@ -109,7 +115,9 @@ if __name__ == "__main__":
     config["input_model_path"] = confparser.get(
         "settings.model", "input_model_path", fallback=None
     )
-    config["output_model_path"] = confparser.get("settings.model", "output_model_path")
+    config["output_model_path"] = confparser.get(
+        "settings.model", "output_model_path"
+    )
     config["output_train_metrics_path"] = None
     config["output_train_metrics_path"] = confparser.get(
         "settings.model", "output_train_metrics_path", fallback=None
