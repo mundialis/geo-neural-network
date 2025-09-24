@@ -25,7 +25,6 @@
 # and IoU per class
 
 
-import os
 import argparse
 import configparser
 from geo_neural_network.smp_lib.smp_test import smp_test

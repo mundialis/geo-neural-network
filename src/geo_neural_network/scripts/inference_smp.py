@@ -27,10 +27,9 @@
 # adapted from
 # https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/examples/upernet_inference_pretrained.ipynb
 
-import os
 import argparse
 import configparser
-from geo_neural_network.smp_lib.smp_inference import smp_inference
+from geo_neural_network.smp_lib.smp_inference import smp_infer
 
 
 def main(config):

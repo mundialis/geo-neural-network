@@ -28,10 +28,6 @@
 # based on
 # https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/examples/camvid_segmentation_multiclass.ipynb
 
-import os
-import sys
-import shutil
-import math
 import argparse
 import configparser
 from geo_neural_network.smp_lib.smp_train import smp_train
