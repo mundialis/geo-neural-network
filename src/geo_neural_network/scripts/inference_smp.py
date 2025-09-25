@@ -66,9 +66,7 @@ if __name__ == "__main__":
 
     config = {}
     config["data_dir"] = confparser.get("dataset", "data_dir")
-    config["num_classes"] = int(
-        confparser.get("dataset", "num_classes")
-    )
+    config["num_classes"] = int(confparser.get("dataset", "num_classes"))
     config["model_path"] = confparser.get("model", "model_path")
     config["output_path"] = confparser.get("output", "output_path")
 

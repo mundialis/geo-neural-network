@@ -96,9 +96,7 @@ if __name__ == "__main__":
     config = {}
     config["data_dir"] = confparser.get("dataset", "data_dir")
     config["in_channels"] = int(confparser.get("dataset", "in_channels"))
-    config["out_classes"] = int(
-        confparser.get("dataset", "out_classes")
-    )
+    config["out_classes"] = int(confparser.get("dataset", "out_classes"))
     config["img_size"] = int(confparser.get("dataset", "img_size"))
 
     config["model_arch"] = confparser.get("model", "model_arch")
@@ -111,9 +109,7 @@ if __name__ == "__main__":
     config["input_model_path"] = confparser.get(
         "model", "input_model_path", fallback=None
     )
-    config["output_model_path"] = confparser.get(
-        "output", "output_model_path"
-    )
+    config["output_model_path"] = confparser.get("output", "output_model_path")
     config["output_train_metrics_path"] = None
     config["output_train_metrics_path"] = confparser.get(
         "output", "output_train_metrics_path", fallback=None
