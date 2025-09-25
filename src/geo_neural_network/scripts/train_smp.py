@@ -34,47 +34,51 @@ from geo_neural_network.smp_lib.smp_train import smp_train
 
 
 def main(config):
+    """
+    pass arguments from config file to smp_train
+    """
     # dataset definitions
-    DATA_DIR = config["data_dir"]
-    IN_CHANNELS = config["in_channels"]
-    OUT_CLASSES = config["out_classes"]
-    IMG_SIZE = config["img_size"]
+    data_dir = config["data_dir"]
+    in_channels = config["in_channels"]
+    out_classes = config["out_classes"]
+    img_size = config["img_size"]
 
     # model definition
-    MODEL_ARCH = config["model_arch"]
+    model_arch = config["model_arch"]
     # see https://smp.readthedocs.io/en/latest/encoders.html
-    ENCODER_NAME = config["encoder_name"]
+    encoder_name = config["encoder_name"]
     # weights can also be None
-    ENCODER_WEIGHTS = config["encoder_weights"]
+    encoder_weights = config["encoder_weights"]
 
     # path to folder with saved, trained model, can be None
-    IN_MODEL_PATH = config["input_model_path"]
+    in_model_path = config["input_model_path"]
 
     # path to folder to save the trained model
-    OUT_MODEL_PATH = config["output_model_path"]
+    out_model_path = config["output_model_path"]
+
+    # path to folder to save training metrics
+    output_train_metrics_path = config["output_train_metrics_path"]
 
     # some training hyperparameters
-    EPOCHS = config["epochs"]
+    epochs = config["epochs"]
     # do not use batch normalisation in the model with batch size < 8
     # add decoder_use_norm=False when initialising the plModule
     # applies to upernet, manet, not to segformer
-    BATCH_SIZE = config["batch_size"]
-
-    # end of configuration
+    batch_size = config["batch_size"]
 
     smp_train(
-        data_dir=DATA_DIR,
-        img_size=IMG_SIZE,
-        in_channels=IN_CHANNELS,
-        out_classes=OUT_CLASSES,
-        model_arch=MODEL_ARCH,
-        encoder_name=ENCODER_NAME,
-        encoder_weights=ENCODER_WEIGHTS,
-        input_model_path=IN_MODEL_PATH,
-        output_model_path=OUT_MODEL_PATH,
-        output_train_metrics_path=None,
-        epochs=EPOCHS,
-        batch_size=BATCH_SIZE,
+        data_dir=data_dir,
+        img_size=img_size,
+        in_channels=in_channels,
+        out_classes=out_classes,
+        model_arch=model_arch,
+        encoder_name=encoder_name,
+        encoder_weights=encoder_weights,
+        input_model_path=in_model_path,
+        output_model_path=out_model_path,
+        output_train_metrics_path=output_train_metrics_path,
+        epochs=epochs,
+        batch_size=batch_size,
     )
 
 
@@ -90,33 +94,29 @@ if __name__ == "__main__":
     confparser.read(args.configfile)
 
     config = {}
-    config["data_dir"] = confparser.get("settings.dataset", "data_dir")
-    config["in_channels"] = int(
-        confparser.get("settings.dataset", "in_channels")
-    )
+    config["data_dir"] = confparser.get("dataset", "data_dir")
+    config["in_channels"] = int(confparser.get("dataset", "in_channels"))
     config["out_classes"] = int(
-        confparser.get("settings.dataset", "out_classes")
+        confparser.get("dataset", "out_classes")
     )
-    config["img_size"] = int(confparser.get("settings.dataset", "img_size"))
+    config["img_size"] = int(confparser.get("dataset", "img_size"))
 
-    config["model_arch"] = confparser.get("settings.model", "model_arch")
-    config["encoder_name"] = confparser.get("settings.model", "encoder_name")
-    config["encoder_weights"] = confparser.get(
-        "settings.model", "encoder_weights"
-    )
-    config["epochs"] = int(confparser.get("settings.model", "epochs"))
-    config["batch_size"] = int(confparser.get("settings.model", "batch_size"))
+    config["model_arch"] = confparser.get("model", "model_arch")
+    config["encoder_name"] = confparser.get("model", "encoder_name")
+    config["encoder_weights"] = confparser.get("model", "encoder_weights")
+    config["epochs"] = int(confparser.get("model", "epochs"))
+    config["batch_size"] = int(confparser.get("model", "batch_size"))
 
     config["input_model_path"] = None
     config["input_model_path"] = confparser.get(
-        "settings.model", "input_model_path", fallback=None
+        "model", "input_model_path", fallback=None
     )
     config["output_model_path"] = confparser.get(
-        "settings.model", "output_model_path"
+        "output", "output_model_path"
     )
     config["output_train_metrics_path"] = None
     config["output_train_metrics_path"] = confparser.get(
-        "settings.model", "output_train_metrics_path", fallback=None
+        "output", "output_train_metrics_path", fallback=None
     )
 
     main(config)

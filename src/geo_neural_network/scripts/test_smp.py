@@ -31,23 +31,26 @@ from geo_neural_network.smp_lib.smp_test import smp_test
 
 
 def main(config):
-    DATA_DIR = config["data_dir"]
+    """
+    pass arguments from config file to smp_test
+    """
+    data_dir = config["data_dir"]
 
-    NUM_CLASSES = config["num_classes"]
-    CLASS_NAMES = [x.strip() for x in config["class_names"].split(",")]
-    if len(CLASS_NAMES) != NUM_CLASSES:
+    num_classes = config["num_classes"]
+    class_names = [x.strip() for x in config["class_names"].split(",")]
+    if len(class_names) != class_names:
         print("Number of class names does not match number of classes!")
 
-    MODEL_PATH = config["model_path"]
+    model_path = config["model_path"]
 
-    OUTPUT_PATH = config["output_path"]
+    output_path = config["output_path"]
 
     smp_test(
-        data_dir=DATA_DIR,
-        input_model_path=MODEL_PATH,
-        num_classes=NUM_CLASSES,
-        class_names=CLASS_NAMES,
-        output_path=OUTPUT_PATH,
+        data_dir=data_dir,
+        input_model_path=model_path,
+        num_classes=num_classes,
+        class_names=class_names,
+        output_path=output_path,
     )
 
 
@@ -63,14 +66,12 @@ if __name__ == "__main__":
     confparser.read(args.configfile)
 
     config = {}
-    config["data_dir"] = confparser.get("settings.dataset", "data_dir")
+    config["data_dir"] = confparser.get("dataset", "data_dir")
 
-    config["model_path"] = confparser.get("settings.model", "model_path")
-    config["num_classes"] = int(
-        confparser.get("settings.dataset", "num_classes")
-    )
-    config["class_names"] = confparser.get("settings.dataset", "class_names")
+    config["model_path"] = confparser.get("model", "model_path")
+    config["num_classes"] = int(confparser.get("dataset", "num_classes"))
+    config["class_names"] = confparser.get("dataset", "class_names")
 
-    config["output_path"] = confparser.get("settings.output", "output_path")
+    config["output_path"] = confparser.get("output", "output_path")
 
     main(config)

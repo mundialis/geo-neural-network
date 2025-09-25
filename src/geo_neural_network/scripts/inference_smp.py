@@ -21,11 +21,11 @@
 ############################################################################
 """
 
-# after a model from segmentation_models.pytorch has been trained (and finetuned)
+# after a model from segmentation_models.pytorch has been trained (and finetuned) # noqa: E501
 # use this locally saved model for inference
 
 # adapted from
-# https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/examples/upernet_inference_pretrained.ipynb
+# https://github.com/qubvel-org/segmentation_models.pytorch/blob/main/examples/upernet_inference_pretrained.ipynb # noqa: E501
 
 import argparse
 import configparser
@@ -33,7 +33,9 @@ from geo_neural_network.smp_lib.smp_inference import smp_infer
 
 
 def main(config):
-
+    """
+    pass arguments from config file to smp_infer
+    """
     data_dir = config["data_dir"]
 
     num_classes = config["num_classes"]
@@ -63,11 +65,11 @@ if __name__ == "__main__":
     confparser.read(args.configfile)
 
     config = {}
-    config["data_dir"] = confparser.get("settings.dataset", "data_dir")
+    config["data_dir"] = confparser.get("dataset", "data_dir")
     config["num_classes"] = int(
-        confparser.get("settings.dataset", "num_classes")
+        confparser.get("dataset", "num_classes")
     )
-    config["model_path"] = confparser.get("settings.model", "model_path")
-    config["output_path"] = confparser.get("settings.output", "output_path")
+    config["model_path"] = confparser.get("model", "model_path")
+    config["output_path"] = confparser.get("output", "output_path")
 
     main(config)
