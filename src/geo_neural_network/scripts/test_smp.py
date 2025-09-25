@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-#############################################################################
+"""#############################################################################
 #
 # MODULE:      wrapper script for smp_test from geo-neural-network
-# AUTHOR(S):   Markus Metz, mundialis
+# AUTHOR(S):   Markus Metz, mundialis.
 #
 # PURPOSE:     Test a trained and saved model from segmentation_models.pytorch
 # COPYRIGHT:   (C) 2025 by mundialis GmbH & Co. KG
@@ -27,13 +26,12 @@
 
 import argparse
 import configparser
+
 from geo_neural_network.smp_lib.smp_test import smp_test
 
 
 def main(config):
-    """
-    pass arguments from config file to smp_test
-    """
+    """Pass arguments from config file to smp_test."""
     data_dir = config["data_dir"]
 
     num_classes = config["num_classes"]
@@ -56,7 +54,7 @@ def main(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="finetune a saved model from segmentation_models.pytorch"
+        description="finetune a saved model from segmentation_models.pytorch",
     )
     parser.add_argument("configfile", help="Path to configfile.")
 

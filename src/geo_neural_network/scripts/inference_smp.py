@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-#############################################################################
+"""#############################################################################
 #
 # MODULE:      wrapper script for smp_inference from geo-neural-network
-# AUTHOR(S):   Markus Metz, mundialis
+# AUTHOR(S):   Markus Metz, mundialis.
 #
 # PURPOSE:     Apply a saved model from segmentation_models.pytorch
 # COPYRIGHT:   (C) 2025 by mundialis GmbH & Co. KG
@@ -29,13 +28,12 @@
 
 import argparse
 import configparser
+
 from geo_neural_network.smp_lib.smp_inference import smp_infer
 
 
 def main(config):
-    """
-    pass arguments from config file to smp_infer
-    """
+    """Pass arguments from config file to smp_infer."""
     data_dir = config["data_dir"]
 
     num_classes = config["num_classes"]
@@ -55,7 +53,7 @@ def main(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Train a model from segmentation_models.pytorch"
+        description="Train a model from segmentation_models.pytorch",
     )
     parser.add_argument("configfile", help="Path to configfile.")
 

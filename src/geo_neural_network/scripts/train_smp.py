@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-#############################################################################
+"""#############################################################################
 #
 # MODULE:      wrapper script for smp_train from geo-neural-network
-# AUTHOR(S):   Markus Metz, mundialis
+# AUTHOR(S):   Markus Metz, mundialis.
 #
 # PURPOSE:     Train a model from segmentation_models.pytorch
 # COPYRIGHT:   (C) 2025 by mundialis GmbH & Co. KG
@@ -30,13 +29,12 @@
 
 import argparse
 import configparser
+
 from geo_neural_network.smp_lib.smp_train import smp_train
 
 
 def main(config):
-    """
-    pass arguments from config file to smp_train
-    """
+    """Pass arguments from config file to smp_train."""
     # dataset definitions
     data_dir = config["data_dir"]
     in_channels = config["in_channels"]
@@ -84,7 +82,7 @@ def main(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Train a model from segmentation_models.pytorch"
+        description="Train a model from segmentation_models.pytorch",
     )
     parser.add_argument("configfile", help="Path to configfile.")
 
@@ -107,12 +105,12 @@ if __name__ == "__main__":
 
     config["input_model_path"] = None
     config["input_model_path"] = confparser.get(
-        "model", "input_model_path", fallback=None
+        "model", "input_model_path", fallback=None,
     )
     config["output_model_path"] = confparser.get("output", "output_model_path")
     config["output_train_metrics_path"] = None
     config["output_train_metrics_path"] = confparser.get(
-        "output", "output_train_metrics_path", fallback=None
+        "output", "output_train_metrics_path", fallback=None,
     )
 
     main(config)
