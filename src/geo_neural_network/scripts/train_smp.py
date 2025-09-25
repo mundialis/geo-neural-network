@@ -105,12 +105,16 @@ if __name__ == "__main__":
 
     config["input_model_path"] = None
     config["input_model_path"] = confparser.get(
-        "model", "input_model_path", fallback=None,
+        "model",
+        "input_model_path",
+        fallback=None,
     )
     config["output_model_path"] = confparser.get("output", "output_model_path")
     config["output_train_metrics_path"] = None
     config["output_train_metrics_path"] = confparser.get(
-        "output", "output_train_metrics_path", fallback=None,
+        "output",
+        "output_train_metrics_path",
+        fallback=None,
     )
 
     main(config)
