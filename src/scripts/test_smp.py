@@ -35,12 +35,9 @@ def main(config):
     data_dir = config["data_dir"]
 
     num_classes = config["num_classes"]
-    class_names = [x.strip() for x in config["class_names"].split(",")]
-    if len(class_names) != class_names:
-        print("Number of class names does not match number of classes!")
+    class_names = config["class_names"]
 
     model_path = config["model_path"]
-
     output_path = config["output_path"]
 
     smp_test(

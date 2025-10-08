@@ -56,6 +56,8 @@ def main(config):
 
     # path to folder to save training metrics
     output_train_metrics_path = config["output_train_metrics_path"]
+    if output_train_metrics_path is None:
+        output_train_metrics_path = "metrics"
 
     # some training hyperparameters
     epochs = config["epochs"]
