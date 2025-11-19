@@ -29,8 +29,36 @@
 
 import argparse
 import configparser
+import os
+
+import matplotlib.pyplot as plt
+import pandas as pd
 
 from geo_neural_network.smp_lib.smp_train import smp_train
+
+
+def plot_curve(epoch, y_train, y_val, y_label, outpath, ylim=None):
+    """Plot metric curves."""
+    plt.figure()
+    # query non-Nan values -> val and train metrics saved alternating per row
+    plt.plot(
+        epoch.drop_duplicates(),
+        y_train.dropna(),
+        "blue",
+        label="Training",
+    )
+    plt.plot(
+        epoch.drop_duplicates(),
+        y_val.dropna(),
+        "orange",
+        label="Validation",
+    )
+    if ylim:
+        plt.ylim(ylim)
+    plt.xlabel("Epoch")
+    plt.ylabel(y_label)
+    plt.legend()
+    plt.savefig(outpath)
 
 
 def main(config):
@@ -79,6 +107,48 @@ def main(config):
         output_train_metrics_path=output_train_metrics_path,
         epochs=epochs,
         batch_size=batch_size,
+    )
+
+    # Create plots from train metrics
+    train_metrics_file = os.path.join(
+        output_train_metrics_path,
+        "metrics.csv",
+    )
+    train_metrics = pd.read_csv(train_metrics_file, sep=",", header=0)
+    # Loss curve
+    plot_curve(
+        train_metrics["epoch"],
+        train_metrics["train_dataset_loss"],
+        train_metrics["valid_dataset_loss"],
+        "Loss",
+        os.path.join(output_train_metrics_path, "loss.png"),
+    )
+    # Accuracy curve
+    plot_curve(
+        train_metrics["epoch"],
+        train_metrics["train_dataset_accuracy"],
+        train_metrics["valid_dataset_accuracy"],
+        "Accuracy",
+        os.path.join(output_train_metrics_path, "accuracy.png"),
+        ylim=[0, 1],
+    )
+    # IoU curve
+    plot_curve(
+        train_metrics["epoch"],
+        train_metrics["train_dataset_iou"],
+        train_metrics["valid_dataset_iou"],
+        "Intersection over Union (IoU)",
+        os.path.join(output_train_metrics_path, "iou.png"),
+        ylim=[0, 1],
+    )
+    # F1 curve
+    plot_curve(
+        train_metrics["epoch"],
+        train_metrics["train_dataset_f1_score"],
+        train_metrics["valid_dataset_f1_score"],
+        "F1 score",
+        os.path.join(output_train_metrics_path, "f1_score.png"),
+        ylim=[0, 1],
     )
 
 
