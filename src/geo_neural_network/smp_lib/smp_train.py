@@ -537,8 +537,8 @@ def smp_train(
         # img_size=XXX, needed for swin and other transformer encoders
         if (
             encoder_name.lower()[:7] == "tu-swin"
-            or ENCODER_NAME.lower()[:8] == "tu-hiera"
-            or ENCODER_NAME.lower()[:9] == "tu-mvitv2"
+            or encoder_name.lower()[:8] == "tu-hiera"
+            or encoder_name.lower()[:9] == "tu-mvitv2"
         ):
             model_kwargs["img_size"] = img_size
 
