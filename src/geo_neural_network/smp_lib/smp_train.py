@@ -74,7 +74,9 @@ class GdalImageDataset(BaseDataset):
         """Initialize the dataset."""
         # directory listing
         self.ids = os.listdir(img_dir)
-        self.images_fps = [os.path.join(img_dir, image_id) for image_id in self.ids]
+        self.images_fps = [
+            os.path.join(img_dir, image_id) for image_id in self.ids
+        ]
 
         # file names of images and masks can have different endings
         mask_ids = []
@@ -99,7 +101,9 @@ class GdalImageDataset(BaseDataset):
 
             mask_ids.append(mask_id)
 
-        self.labels_fps = [os.path.join(lbl_dir, mask_id) for mask_id in mask_ids]
+        self.labels_fps = [
+            os.path.join(lbl_dir, mask_id) for mask_id in mask_ids
+        ]
         # for a huge number of files, read a textfile with filenames
 
         self.img_dir = img_dir
@@ -380,7 +384,9 @@ class PlModule(pl.LightningModule):
         # save best model monitoring validation loss
         if self.current_epoch > 4 and self.best_loss > self.current_loss:
             self.best_loss = self.current_loss
-            best_model_path = f"{self.model_path_base}_epoch{self.current_epoch}"
+            best_model_path = (
+                f"{self.model_path_base}_epoch{self.current_epoch}"
+            )
             print("\nsaving new best model...\n", file=sys.stderr)
             self.model.save_pretrained(best_model_path, push_to_hub=False)
             if self.best_model_path:
