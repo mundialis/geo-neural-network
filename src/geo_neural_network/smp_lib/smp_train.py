@@ -540,8 +540,12 @@ def smp_train(
         model_kwargs = {}
         if batch_size < 6 and model_arch.lower() in {"upernet", "manet"}:
             model_kwargs["decoder_use_norm"] = False
-        #     img_size=XXX, needed for swin
-        if encoder_name.lower()[:7] == "tu-swin":
+        # img_size=XXX, needed for swin and other transformer encoders
+        if (
+            encoder_name.lower()[:7] == "tu-swin"
+            or encoder_name.lower()[:8] == "tu-hiera"
+            or encoder_name.lower()[:9] == "tu-mvitv2"
+        ):
             model_kwargs["img_size"] = img_size
 
         model = smp.create_model(
