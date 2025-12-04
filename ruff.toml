@@ -8,6 +8,7 @@ ignore = [
     "D205",
     "PLR0913", # Too many arguments in function definition (7 > 5)
     "PLR0914",
+    "PLR0915", # Too many statements (53 > 50)
     "PLR0917", # Too many positional arguments (7/5)
     "PLR2004", # e.g. Magic value used in comparison, consider replacing `100` with a constant variable
     "PTH118",
