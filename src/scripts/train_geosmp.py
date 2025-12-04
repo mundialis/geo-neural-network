@@ -65,6 +65,7 @@ def main(config):
     """Pass arguments from config file to smp_train."""
     # dataset definitions
     data_dir = config["data_dir"]
+    data_version = config["data_version"]
     in_channels = config["in_channels"]
     out_classes = config["out_classes"]
     img_size = config["img_size"]
@@ -79,13 +80,19 @@ def main(config):
     # path to folder with saved, trained model, can be None
     in_model_path = config["input_model_path"]
 
-    # path to folder to save the trained model
-    out_model_path = config["output_model_path"]
+    # base path to folder to save the trained model
+    output_base_path = config["output_base_path"]
+    output_base_dir = config["output_base_dir"]
+    out_model_dir = f"model_{model_arch.replace('-','_')}_{encoder_name.replace('-','_')}_{output_base_dir}_{data_version}"
+
+    out_model_path = os.path.join(
+        output_base_path,
+        out_model_dir,
+        "model"
+    )
 
     # path to folder to save training metrics
-    output_train_metrics_path = config["output_train_metrics_path"]
-    if output_train_metrics_path is None:
-        output_train_metrics_path = "metrics"
+    output_train_metrics_path = os.path.join(output_base_path, out_model_dir, "metrics")
 
     # some training hyperparameters
     epochs = config["epochs"]
@@ -165,6 +172,7 @@ if __name__ == "__main__":
 
     config = {}
     config["data_dir"] = confparser.get("dataset", "data_dir")
+    config["data_version"] = confparser.get("dataset", "data_version")
     config["in_channels"] = int(confparser.get("dataset", "in_channels"))
     config["out_classes"] = int(confparser.get("dataset", "out_classes"))
     config["img_size"] = int(confparser.get("dataset", "img_size"))
@@ -181,12 +189,7 @@ if __name__ == "__main__":
         "input_model_path",
         fallback=None,
     )
-    config["output_model_path"] = confparser.get("output", "output_model_path")
-    config["output_train_metrics_path"] = None
-    config["output_train_metrics_path"] = confparser.get(
-        "output",
-        "output_train_metrics_path",
-        fallback=None,
-    )
+    config["output_base_path"] = confparser.get("output", "output_base_path")
+    config["output_base_dir"] = confparser.get("output", "output_base_dir")
 
     main(config)
