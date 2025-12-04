@@ -83,16 +83,20 @@ def main(config):
     # base path to folder to save the trained model
     output_base_path = config["output_base_path"]
     output_base_dir = config["output_base_dir"]
-    out_model_dir = f"model_{model_arch.replace('-','_')}_{encoder_name.replace('-','_')}_{output_base_dir}_{data_version}"
-
-    out_model_path = os.path.join(
-        output_base_path,
-        out_model_dir,
-        "model"
+    out_model_dir = (
+        f"model_{model_arch.replace('-', '_')}"
+        f"_{encoder_name.replace('-', '_')}"
+        f"_{output_base_dir}_{data_version}"
     )
 
+    out_model_path = os.path.join(output_base_path, out_model_dir, "model")
+
     # path to folder to save training metrics
-    output_train_metrics_path = os.path.join(output_base_path, out_model_dir, "metrics")
+    output_train_metrics_path = os.path.join(
+        output_base_path,
+        out_model_dir,
+        "metrics",
+    )
 
     # some training hyperparameters
     epochs = config["epochs"]

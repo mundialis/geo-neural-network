@@ -621,6 +621,10 @@ def smp_train(
 
     if mymodule.best_epoch > 0:
         print(f"best epoch: {mymodule.best_epoch}", file=sys.stderr)
-        with open(os.path.join(output_model_path, "README.md"), "a") as f:
-            f.write(f"\n\n## Saved model")
+        with open(
+            os.path.join(output_model_path, "README.md"),
+            "a",
+            encoding="utf-8",
+        ) as f:
+            f.write("\n\n## Saved model")
             f.write(f"\nSaved model with best epoch:{mymodule.best_epoch}\n")
