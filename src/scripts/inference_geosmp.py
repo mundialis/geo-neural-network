@@ -28,6 +28,7 @@
 
 import argparse
 import configparser
+import os
 
 from geo_neural_network.smp_lib.smp_inference import smp_infer
 
@@ -42,7 +43,9 @@ def main(config):
     model_path = config["model_path"]
 
     output_path = config["output_path"]
-
+    if not os.path.isdir(output_path):
+        os.makedirs(output_path)
+    
     smp_infer(
         data_dir=data_dir,
         input_model_path=model_path,
