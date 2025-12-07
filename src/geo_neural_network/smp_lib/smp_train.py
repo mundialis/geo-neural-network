@@ -627,4 +627,4 @@ def smp_train(
             encoding="utf-8",
         ) as f:
             f.write("\n\n## Saved model")
-            f.write(f"\nSaved model with best epoch:{mymodule.best_epoch}\n")
+            f.write(f"\nSaved model with best epoch: {mymodule.best_epoch}\n")
