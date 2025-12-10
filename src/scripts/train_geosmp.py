@@ -65,7 +65,7 @@ def main(config):
     """Pass arguments from config file to smp_train."""
     # dataset definitions
     data_dir = config["data_dir"]
-    data_version = config["data_version"]
+    model_version = config["model_version"]
     in_channels = config["in_channels"]
     out_classes = config["out_classes"]
     img_size = config["img_size"]
@@ -86,7 +86,7 @@ def main(config):
     out_model_dir = (
         f"model_{model_arch.replace('-', '_')}"
         f"_{encoder_name.replace('-', '_')}"
-        f"_{output_base_dir}_{data_version}"
+        f"_{output_base_dir}_{model_version}"
     )
 
     out_model_path = os.path.join(output_base_path, out_model_dir, "model")
@@ -176,7 +176,7 @@ if __name__ == "__main__":
 
     config = {}
     config["data_dir"] = confparser.get("dataset", "data_dir")
-    config["data_version"] = confparser.get("dataset", "data_version")
+    config["model_version"] = confparser.get("dataset", "model_version")
     config["in_channels"] = int(confparser.get("dataset", "in_channels"))
     config["out_classes"] = int(confparser.get("dataset", "out_classes"))
     config["img_size"] = int(confparser.get("dataset", "img_size"))
