@@ -203,6 +203,7 @@ class PlModule(pl.LightningModule):
         out_classes,
         model_path_base,
         t_max,
+        weighted_loss,
     ) -> None:
         """Initialize the module."""
         super().__init__()
@@ -220,12 +221,27 @@ class PlModule(pl.LightningModule):
         self.mean = 125.5
         self.std = 100.2
 
+        if weighted_loss:
+            self.loss_jaccard_weight = 0.7
+            self.loss_ce_weight = 0.3
+
         if out_classes > 1:
-            # Loss function for multi-class segmentation
-            self.loss_fn = smp.losses.JaccardLoss(
-                smp.losses.MULTICLASS_MODE,
-                from_logits=True,
-            )
+            if weighted_loss:
+                self.loss_fn = None
+                self.loss_jaccard = smp.losses.JaccardLoss(
+                    smp.losses.MULTICLASS_MODE,
+                    from_logits=True,
+                )
+                ce_weights = torch.tensor(weighted_loss, dtype=torch.float32)
+                self.loss_ce = torch.nn.CrossEntropyLoss(
+                    weight = ce_weights
+                )
+            else:
+                # Loss function for multi-class segmentation
+                self.loss_fn = smp.losses.JaccardLoss(
+                    smp.losses.MULTICLASS_MODE,
+                    from_logits=True,
+                )
         else:
             # Loss function for binary segmentation
             self.loss_fn = smp.losses.JaccardLoss(
@@ -289,7 +305,14 @@ class PlModule(pl.LightningModule):
 
         # Compute loss using given loss fn (pass original mask, not one-hot
         # encoded)
-        loss = self.loss_fn(logits_mask, mask)
+        if self.loss_fn:
+            loss = self.loss_fn(logits_mask, mask)
+        else:
+            # Compute weighted loss
+            loss_jaccard = self.loss_jaccard(logits_mask, mask)
+            loss_ce = self.loss_ce(logits_mask, mask)
+            loss = (self.loss_jaccard_weight * loss_jaccard +
+                    self.loss_ce_weight * loss_ce)
 
         if self.number_of_classes > 1:
             # Apply softmax to get probabilities for multi-class segmentation
@@ -446,6 +469,7 @@ def smp_train(
     output_train_metrics_path=None,
     epochs=50,
     batch_size=8,
+    weighted_loss=None,
 ):
     """See https://smp.readthedocs.io/en/latest/encoders.html.
 
@@ -571,6 +595,7 @@ def smp_train(
         out_classes=out_classes_model,
         model_path_base=output_model_path,
         t_max=t_max,
+        weighted_loss=weighted_loss,
     )
     # small batchsizes: do not use batchnorm because pytorch batch_norm fails
     # with small batch sizes
