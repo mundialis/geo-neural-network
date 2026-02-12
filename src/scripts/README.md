@@ -17,16 +17,19 @@ Usage of the scripts is thus fairly simple:
   * When not set simply the Jaccard loss is used
   * If set, the weights of different model classes are used for CrossEntropy-loss. This is recommended in case of class imbalance.
   * Then weighted loss combination of Jaccard (0.7) and CrossEntropy (0.3) is used (Note: combination weighting currently hardcoded; if useful, can be set as parameter)
-  * Hint: for setting weights of model classes, following code could help
+  * Hint: for setting `weighted_loss` of model classes, following could help
     ```python
     # get amount of data for each class
     from collections import Counter
     class_counts = Counter()
-    for batch in train_loader:
-        x, y = batch
-        y_flat = y.view(-1).cpu().numpy()
-        class_counts.update(y_flat)
-    num_classes = 13
+    # Note: need dataset without augmentation
+    # e.g. with train_dataset_no_augmentation = GdalImageDataset(x_train_dir,y_train_dir)
+    for idx in range(len(train_dataset_no_augmentation)):
+        _, mask = train_dataset_no_augmentation[idx]
+        class_counts.update(mask.flatten())
+
+    # 'num_classes' should be same as 'out_classes' from config
+    num_classes = 4
     counts = list()
     for i in range(num_classes):
        counts.append(class_counts.get(i, 0))
@@ -34,15 +37,16 @@ Usage of the scripts is thus fairly simple:
 
     # weights dependent of amount/frequency of class
     freq_weights=list()
-    for c in counts: freq_weights.append(total_samples / (num_classes * c))
+    for c in counts: freq_weights.append(0 if c == 0 else total_samples / (num_classes * c))
 
     # weights dependent of importance of class -> Note must be set manually
     # e.g.
-    importance = {0: 0.1, 1: 1, 2: 1, 3: 0.5}
+    importance = {0: 0, 1: 1, 2: 1, 3: 0.5}
     imp_list=list()
     for i in range(num_classes):
         imp_list.append(importance.get(i, 1.0))
 
+    # final weighted_loss as combination of frequency and importance of class
     final_weights=list()
     for f, i in zip(freq_weights, imp_list):
         final_weights.append(f*i)
