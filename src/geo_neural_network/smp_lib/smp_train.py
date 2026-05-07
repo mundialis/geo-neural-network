@@ -29,6 +29,7 @@
 # examples/camvid_segmentation_multiclass.ipynb
 
 import os
+import random
 import shutil
 import sys
 from pathlib import Path
@@ -74,6 +75,7 @@ class GdalImageDataset(BaseDataset):
         """Initialize the dataset."""
         # directory listing
         self.ids = os.listdir(img_dir)
+        random.shuffle(self.ids)
         self.images_fps = [
             os.path.join(img_dir, image_id) for image_id in self.ids
         ]
