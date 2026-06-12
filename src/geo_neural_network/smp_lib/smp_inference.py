@@ -78,7 +78,14 @@ def read_image_gdal(filename, driver, output_file):
     return img, seg_map
 
 
-def smp_infer(data_dir, input_model_path, num_classes, output_path):
+def smp_infer(
+    data_dir,
+    input_model_path,
+    num_classes,
+    output_path,
+    img_min=1,
+    img_max=255,
+):
     """Args:
     data_dir (string): root folder with training data
     input_model_path (string): path to trained and locally saved model
@@ -99,9 +106,6 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
     model = smp.from_pretrained(input_model_path).eval().to(device)
     # preprocessing = A.Compose.from_pretrained(MODEL_PATH)
     # print("Preprocessing:\n", preprocessing)
-
-    mean = 125.5
-    std = 100.2
 
     # GDAL driver to write outputs
     driver = gdal.GetDriverByName("GTiff")
@@ -142,7 +146,9 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
         # print(f"image shape: {image.shape}")
         # Preprocess image
         # normalized_image = preprocessing(image=image)["image"]
-        normalized_image = (image.astype(np.float32) - mean) / std
+        normalized_image = (image.astype(np.float32) - img_min) / (
+            img_max - img_min
+        )
 
         input_tensor = torch.as_tensor(normalized_image)
         # image is already CHW

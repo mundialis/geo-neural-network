@@ -205,6 +205,8 @@ class PlModule(pl.LightningModule):
         out_classes,
         model_path_base,
         t_max,
+        min_value,
+        max_value,
     ) -> None:
         """Initialize the module."""
         super().__init__()
@@ -219,8 +221,8 @@ class PlModule(pl.LightningModule):
         # self.register_buffer(
         #     "mean", torch.tensor(params["mean"]).view(1, 3, 1, 1)
         # )
-        self.mean = 125.5
-        self.std = 100.2
+        self.img_min = min_value
+        self.img_max = max_value
 
         if out_classes > 1:
             # Loss function for multi-class segmentation
@@ -252,7 +254,8 @@ class PlModule(pl.LightningModule):
         """Forward."""
         # Normalize image
         image = image.float()
-        image = (image - self.mean) / self.std
+        # scale to [0 1]
+        image = (image - self.img_min) / (self.img_max - self.img_min)
         return self.model(image)
 
     # ruff:noqa:ARG002 # Unused method argument
@@ -448,6 +451,8 @@ def smp_train(
     output_train_metrics_path=None,
     epochs=50,
     batch_size=8,
+    img_min=1,
+    img_max=255,
 ):
     """See https://smp.readthedocs.io/en/latest/encoders.html.
 
@@ -573,6 +578,8 @@ def smp_train(
         out_classes=out_classes_model,
         model_path_base=output_model_path,
         t_max=t_max,
+        img_min=img_min,
+        img_max=img_max,
     )
     # small batchsizes: do not use batchnorm because pytorch batch_norm fails
     # with small batch sizes
