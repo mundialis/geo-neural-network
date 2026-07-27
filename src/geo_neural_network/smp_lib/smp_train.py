@@ -437,7 +437,7 @@ class PlModule(pl.LightningModule):
 
 
 def check_valid_labels(train_dataset, valid_dataset, out_classes):
-    """Validates label data in the provided training and validation datasets.
+    """Validate label data in the provided training and validation datasets.
 
     This function checks whether the labels in the datasets are within the
     valid range [0, out_classes - 1] (after applied augmentation)
