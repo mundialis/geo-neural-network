@@ -504,6 +504,7 @@ def smp_train(
     for name, ds in [("train", train_dataset), ("valid", valid_dataset)]:
         print(f"Checking {name} dataset (out_classes={out_classes}) ...")
         ind_invalid = 0
+        # pylint: disable=consider-using-enumerate
         for i in range(len(ds)):
             _, mask = ds[i]  # via __getitem__, thus incl. augmentation
             mn, mx = np.min(mask), np.max(mask)
@@ -511,7 +512,7 @@ def smp_train(
                 ind_invalid += 1
                 print(
                     f"  INVALID: {ds.labels_fps[i]} -> min={mn}, max={mx} "
-                    f"(allowed: 0..{out_classes - 1})"
+                    f"(allowed: 0..{out_classes - 1})",
                 )
         print(f"{name}: {ind_invalid} of {len(ds)} labels with invalid values")
 

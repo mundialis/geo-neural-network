@@ -126,7 +126,7 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
 
     print("inference ...", file=sys.stderr)
     # loop over images (image file paths
-    for filename, image_fp in zip(ids, images_fps):
+    for filename, image_fp in zip(ids, images_fps, strict=True):
         output_file = os.path.join(output_path, filename)
         if output_file.endswith(".vrt"):
             output_file = output_file.replace(".vrt", ".tif")
