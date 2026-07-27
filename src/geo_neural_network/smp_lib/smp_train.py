@@ -436,6 +436,38 @@ class PlModule(pl.LightningModule):
         }
 
 
+def check_valid_labels(train_dataset, valid_dataset, out_classes):
+    """
+    Validates the label data in the provided training and validation datasets.
+
+    This function checks whether the labels in the datasets are within the
+    valid range [0, out_classes - 1] (after applied augmentation)
+    and identifies and reports them.
+
+    Args:
+        train_dataset (Dataset): The training dataset, which should support
+            indexing and return a tuple (data, mask) where `mask` is the label.
+        valid_dataset (Dataset): The validation dataset, similar in structure
+            to the training dataset.
+        out_classes (int): The number of output classes. Valid label values
+            are expected to be in the range [0, out_classes - 1].
+    """
+    for name, ds in [("train", train_dataset), ("valid", valid_dataset)]:
+        print(f"Checking {name} dataset (out_classes={out_classes}) ...")
+        ind_invalid = 0
+        # pylint: disable=consider-using-enumerate
+        for i in range(len(ds)):
+            _, mask = ds[i]  # via __getitem__, thus incl. augmentation
+            mn, mx = np.min(mask), np.max(mask)
+            if mn < 0 or mx >= out_classes:
+                ind_invalid += 1
+                print(
+                    f"  INVALID: {ds.labels_fps[i]} -> min={mn}, max={mx} "
+                    f"(allowed: 0..{out_classes - 1})",
+                )
+        print(f"{name}: {ind_invalid} of {len(ds)} labels with invalid values")
+
+
 def smp_train(
     data_dir,
     img_size,
@@ -501,20 +533,7 @@ def smp_train(
     # Check for valid label data (including augmentation output)
     # and get specific information which label are non-valid
     # (Otherwise generic failure within training step)
-    for name, ds in [("train", train_dataset), ("valid", valid_dataset)]:
-        print(f"Checking {name} dataset (out_classes={out_classes}) ...")
-        ind_invalid = 0
-        # pylint: disable=consider-using-enumerate
-        for i in range(len(ds)):
-            _, mask = ds[i]  # via __getitem__, thus incl. augmentation
-            mn, mx = np.min(mask), np.max(mask)
-            if mn < 0 or mx >= out_classes:
-                ind_invalid += 1
-                print(
-                    f"  INVALID: {ds.labels_fps[i]} -> min={mn}, max={mx} "
-                    f"(allowed: 0..{out_classes - 1})",
-                )
-        print(f"{name}: {ind_invalid} of {len(ds)} labels with invalid values")
+    check_valid_labels(train_dataset, valid_dataset, out_classes)
 
     # pytorch dataloaders
     train_loader = DataLoader(
