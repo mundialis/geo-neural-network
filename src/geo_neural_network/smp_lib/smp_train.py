@@ -35,6 +35,7 @@ import sys
 from pathlib import Path
 
 import albumentations
+import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
@@ -496,6 +497,23 @@ def smp_train(
         y_valid_dir,
         augmentation=get_validation_augmentation(img_size),
     )
+
+    # Check for valid label data (including augmentation output)
+    # and get specific information which label are non-valid
+    # (Otherwise generic failure within training step)
+    for name, ds in [("train", train_dataset), ("valid", valid_dataset)]:
+        print(f"Checking {name} dataset (out_classes={out_classes}) ...")
+        ind_invalid = 0
+        for i in range(len(ds)):
+            _, mask = ds[i]  # via __getitem__, thus incl. augmentation
+            mn, mx = np.min(mask), np.max(mask)
+            if mn < 0 or mx >= out_classes:
+                ind_invalid += 1
+                print(
+                    f"  INVALID: {ds.labels_fps[i]} -> min={mn}, max={mx} "
+                    f"(allowed: 0..{out_classes - 1})"
+                )
+        print(f"{name}: {ind_invalid} of {len(ds)} labels with invalid values")
 
     # pytorch dataloaders
     train_loader = DataLoader(
