@@ -462,7 +462,7 @@ def check_valid_labels(train_dataset, valid_dataset, out_classes):
             if mn < 0 or mx >= out_classes:
                 ind_invalid += 1
                 print(
-                    f"  INVALID: {ds.labels_fps[i]} -> min={mn}, max={mx} "
+                    f"  INVALID: {name} {ds.labels_fps[i]} -> min={mn}, max={mx} "
                     f"(allowed: 0..{out_classes - 1})",
                 )
         if ind_invalid > 0:
