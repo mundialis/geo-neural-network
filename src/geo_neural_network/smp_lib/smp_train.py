@@ -465,7 +465,8 @@ def check_valid_labels(train_dataset, valid_dataset, out_classes):
                     f"  INVALID: {ds.labels_fps[i]} -> min={mn}, max={mx} "
                     f"(allowed: 0..{out_classes - 1})",
                 )
-        print(f"{name}: {ind_invalid} of {len(ds)} labels with invalid values")
+        if ind_invalid > 0:
+            print(f"{name}: {ind_invalid} of {len(ds)} labels with invalid values")
 
 
 def smp_train(
