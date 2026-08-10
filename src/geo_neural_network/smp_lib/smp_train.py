@@ -467,7 +467,8 @@ def check_valid_labels(train_dataset, valid_dataset, out_classes):
                 )
         if ind_invalid > 0:
             print(
-                f"{name}: {ind_invalid} of {len(ds)} label with invalid values"
+                f"{name}: {ind_invalid} of {len(ds)} labels "
+                "with invalid values",
             )
 
 
