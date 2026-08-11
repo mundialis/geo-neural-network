@@ -105,6 +105,8 @@ def main(config):
     # applies to upernet, manet, not to segformer
     batch_size = config["batch_size"]
 
+    weighted_loss=config["weighted_loss"]
+
     smp_train(
         data_dir=data_dir,
         img_size=img_size,
@@ -118,6 +120,7 @@ def main(config):
         output_train_metrics_path=output_train_metrics_path,
         epochs=epochs,
         batch_size=batch_size,
+        weighted_loss=weighted_loss
     )
 
     # Create plots from train metrics
@@ -186,6 +189,10 @@ if __name__ == "__main__":
     config["encoder_weights"] = confparser.get("model", "encoder_weights")
     config["epochs"] = int(confparser.get("model", "epochs"))
     config["batch_size"] = int(confparser.get("model", "batch_size"))
+    config["weighted_loss"] = None
+    if confparser.has_option("model","weighted_loss"):
+        weights_str = confparser.get("model", "weighted_loss")
+        config["weighted_loss"] = [float(x.strip()) for x in weights_str.split(",")]
 
     config["input_model_path"] = None
     config["input_model_path"] = confparser.get(
