@@ -187,7 +187,6 @@ if __name__ == "__main__":
     config["epochs"] = int(confparser.get("model", "epochs"))
     config["batch_size"] = int(confparser.get("model", "batch_size"))
 
-    config["input_model_path"] = None
     config["input_model_path"] = confparser.get(
         "model",
         "input_model_path",

@@ -37,11 +37,19 @@ import torch
 from osgeo import gdal
 
 
-def read_image_gdal(filename, driver, output_file):
+def read_image_gdal(
+    filename,
+    driver,
+    output_file,
+    num_classes,
+    output_file_prob=None,
+):
     """Args:
     filename (string): path to file to read with GDAL
     driver (GDAL raster driver): GDAL driver to use for creating output raster
     output_file (string): path to output raster file.
+    num_classes (int): number of output classes (needed for prob raster file).
+    output_file_prob (string): optional path to probability output raster file.
     """
     ds = gdal.Open(filename, gdal.GA_ReadOnly)
     if ds is None:
@@ -72,24 +80,52 @@ def read_image_gdal(filename, driver, output_file):
     # Set no data to 255 -> assuming no classification with 255 classes
     seg_map.GetRasterBand(1).SetNoDataValue(255)
 
+    seg_map_prob = None
+    if output_file_prob:
+        if num_classes > 2:
+            # remove background class probability (first band)
+            num_classes -= 1
+        seg_map_prob = driver.Create(
+            output_file_prob,
+            width,
+            height,
+            num_classes,
+            gdal.GDT_Byte,
+            options=["TILED=YES", "COMPRESS=LZW"],
+        )
+        seg_map_prob.SetGeoTransform(trans)
+        seg_map_prob.SetProjection(proj)
+        # Set no data to 255 -> assuming no classification with 255 classes
+        for num in range(num_classes):
+            seg_map_prob.GetRasterBand(num + 1).SetNoDataValue(255)
+
     # close GDAL dataset
     ds = None
 
-    return img, seg_map
+    return img, seg_map, seg_map_prob
 
 
-def smp_infer(data_dir, input_model_path, num_classes, output_path):
+def smp_infer(
+    data_dir,
+    input_model_path,
+    num_classes,
+    output_path,
+    output_path_prob=None,
+):
     """Args:
     data_dir (string): root folder with training data
     input_model_path (string): path to trained and locally saved model
     num_classes (int): number of output classes
-    output_path (string): path where to save results.
+    output_path (string): path to save results with discrete classes.
+    output_path_prob (string): optional path to save results with probabilites.
 
     """
     x_test_dir = data_dir
 
     if not Path(output_path).exists():
         Path(output_path).mkdir()
+    if output_path_prob and not Path(output_path_prob).exists():
+        Path(output_path_prob).mkdir()
 
     gdal.UseExceptions()
 
@@ -137,8 +173,21 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
         ):
             # only process tif, jp2 and vrt images
             continue
+        output_file_prob = None
+        if output_path_prob:
+            output_file_prob = os.path.join(
+                output_path_prob,
+                Path(output_file).name,
+            )
+
         # Load image
-        image, seg_map = read_image_gdal(image_fp, driver, output_file)
+        image, seg_map, seg_map_prob = read_image_gdal(
+            image_fp,
+            driver,
+            output_file,
+            num_classes,
+            output_file_prob,
+        )
         # print(f"image shape: {image.shape}")
         # Preprocess image
         # normalized_image = preprocessing(image=image)["image"]
@@ -167,11 +216,41 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
         # (here the no-data value is 255)
         if num_classes > 2:
             nan_mask = np.all(np.isnan(mask[0].cpu().numpy()), 0)
+
+            if output_path_prob:
+                # -- class probabilities
+                # JaccardLoss + MULTICLASS_MODE -> softmax
+                # [C, H, W], float 0-1
+                mask_probs = torch.softmax(mask[0], dim=0).cpu().numpy()
+                # remove background class probability (first band)
+                mask_probs_no_background = mask_probs[1:, :, :]
+                # Scale [0 1] to [0 100] -> to allow saving tif as byte
+                # Note: cutting digits to integer
+                mask_probs_scaled = (
+                    (mask_probs_no_background * 100).round().astype(np.uint8)
+                )
+                mask_probs_scaled[:, nan_mask] = 255
+
+            # -- discrete classes (one class value per pixel)
             mask = mask[0].argmax(0).cpu().numpy()
             mask[nan_mask] = 255
         else:
-            # mask = mask[0].sigmoid()
             nan_mask = np.isnan(mask[0].cpu().numpy())
+
+            if output_path_prob:
+                # -- class probabilities
+                # JaccardLoss + BINARY_MODE -> sigmoid
+                # [1, H, W] oder [H, W], float 0-1
+                mask_probs = mask[0].sigmoid().cpu().numpy()
+                # Scale [0 1] to [0 100] -> to allow saving tif as byte
+                # Note: cutting digits to integer
+                mask_probs_scaled_tmp = (
+                    (mask_probs * 100).round().astype(np.uint8)
+                )
+                mask_probs_scaled = mask_probs_scaled_tmp.astype(object)
+                mask_probs_scaled[nan_mask] = 255
+
+            # -- discrete classes (one class value per pixel)
             mask_filter = (mask[0] > 0.5).cpu().numpy()
             # object type to allow saving no data value (not only boolean)
             mask = mask_filter.astype(object)
@@ -181,5 +260,11 @@ def smp_infer(data_dir, input_model_path, num_classes, output_path):
         seg_map.WriteArray(mask)
         # close GDAL dataset
         seg_map = None
+
+        if seg_map_prob:
+            # write output with GDAL
+            seg_map_prob.WriteArray(mask_probs_scaled)
+            # close GDAL dataset
+            seg_map_prob = None
 
     print("done", file=sys.stderr)
