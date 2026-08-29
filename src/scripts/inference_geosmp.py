@@ -36,6 +36,11 @@ from geo_neural_network.smp_lib.smp_inference import smp_infer
 def main(config):
     """Pass arguments from config file to smp_infer."""
     data_dir = config["data_dir"]
+    opt_params = {}
+    if "img_min" in config:
+        opt_params["img_min"] = config["img_min"]
+    if "img_max" in config:
+        opt_params["img_max"] = config["img_max"]
 
     num_classes = config["num_classes"]
 
@@ -51,6 +56,7 @@ def main(config):
         input_model_path=model_path,
         num_classes=num_classes,
         output_path=output_path,
+        **opt_params,
     )
 
 
@@ -68,6 +74,10 @@ if __name__ == "__main__":
     config = {}
     config["data_dir"] = confparser.get("dataset", "data_dir")
     config["num_classes"] = int(confparser.get("dataset", "num_classes"))
+    if confparser.has_option("dataset", "img_min"):
+        config["img_min"] = int(confparser.get("dataset", "img_min"))
+    if confparser.has_option("dataset", "img_max"):
+        config["img_max"] = int(confparser.get("dataset", "img_max"))
     config["model_path"] = confparser.get("model", "model_path")
     config["output_path"] = confparser.get("output", "output_path")
 

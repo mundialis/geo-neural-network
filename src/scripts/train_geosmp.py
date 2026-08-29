@@ -69,6 +69,11 @@ def main(config):
     in_channels = config["in_channels"]
     out_classes = config["out_classes"]
     img_size = config["img_size"]
+    opt_params = {}
+    if "img_min" in config:
+        opt_params["img_min"] = config["img_min"]
+    if "img_max" in config:
+        opt_params["img_max"] = config["img_max"]
 
     # model definition
     model_arch = config["model_arch"]
@@ -118,6 +123,7 @@ def main(config):
         output_train_metrics_path=output_train_metrics_path,
         epochs=epochs,
         batch_size=batch_size,
+        **opt_params,
     )
 
     # Create plots from train metrics
@@ -180,6 +186,10 @@ if __name__ == "__main__":
     config["in_channels"] = int(confparser.get("dataset", "in_channels"))
     config["out_classes"] = int(confparser.get("dataset", "out_classes"))
     config["img_size"] = int(confparser.get("dataset", "img_size"))
+    if confparser.has_option("dataset", "img_min"):
+        config["img_min"] = int(confparser.get("dataset", "img_min"))
+    if confparser.has_option("dataset", "img_max"):
+        config["img_max"] = int(confparser.get("dataset", "img_max"))
 
     config["model_arch"] = confparser.get("model", "model_arch")
     config["encoder_name"] = confparser.get("model", "encoder_name")
