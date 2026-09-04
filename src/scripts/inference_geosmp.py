@@ -70,5 +70,15 @@ if __name__ == "__main__":
     config["num_classes"] = int(confparser.get("dataset", "num_classes"))
     config["model_path"] = confparser.get("model", "model_path")
     config["output_path"] = confparser.get("output", "output_path")
+    config["output_path_prob"] = confparser.get(
+        "output",
+        "output_path_prob",
+        fallback=None,
+    )
+    config["prob_drop_bg"] = confparser.getboolean(
+        "output",
+        "prob_drop_bg",
+        fallback=False,
+    )
 
     main(config)
