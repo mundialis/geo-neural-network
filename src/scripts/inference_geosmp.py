@@ -75,5 +75,10 @@ if __name__ == "__main__":
         "output_path_prob",
         fallback=None,
     )
+    config["prob_drop_bg"] = confparser.getboolean(
+        "output",
+        "prob_drop_bg",
+        fallback=False,
+    )
 
     main(config)

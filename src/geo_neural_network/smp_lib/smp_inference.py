@@ -43,6 +43,7 @@ def read_image_gdal(
     output_file,
     num_classes,
     output_file_prob=None,
+    prob_drop_bg=False,
 ):
     """Args:
     filename (string): path to file to read with GDAL
@@ -50,6 +51,7 @@ def read_image_gdal(
     output_file (string): path to output raster file.
     num_classes (int): number of output classes (needed for prob raster file).
     output_file_prob (string): optional path to probability output raster file.
+    prob_drop_bg (boolean): optional drop background class probability.
     """
     ds = gdal.Open(filename, gdal.GA_ReadOnly)
     if ds is None:
@@ -82,7 +84,7 @@ def read_image_gdal(
 
     seg_map_prob = None
     if output_file_prob:
-        if num_classes > 2:
+        if prob_drop_bg and num_classes > 2:
             # remove background class probability (first band)
             num_classes -= 1
         seg_map_prob = driver.Create(
@@ -111,6 +113,7 @@ def smp_infer(
     num_classes,
     output_path,
     output_path_prob=None,
+    prob_drop_bg=False,
 ):
     """Args:
     data_dir (string): root folder with training data
@@ -187,6 +190,7 @@ def smp_infer(
             output_file,
             num_classes,
             output_file_prob,
+            prob_drop_bg,
         )
         # print(f"image shape: {image.shape}")
         # Preprocess image
@@ -222,12 +226,13 @@ def smp_infer(
                 # JaccardLoss + MULTICLASS_MODE -> softmax
                 # [C, H, W], float 0-1
                 mask_probs = torch.softmax(mask[0], dim=0).cpu().numpy()
-                # remove background class probability (first band)
-                mask_probs_no_background = mask_probs[1:, :, :]
+                if prob_drop_bg:
+                    # remove background class probability (first band)
+                    mask_probs = mask_probs[1:, :, :]
                 # Scale [0 1] to [0 100] -> to allow saving tif as byte
                 # Note: cutting digits to integer
                 mask_probs_scaled = (
-                    (mask_probs_no_background * 100).round().astype(np.uint8)
+                    (mask_probs * 100).round().astype(np.uint8)
                 )
                 mask_probs_scaled[:, nan_mask] = 255
 
