@@ -43,7 +43,7 @@ def read_image_gdal(
     output_file,
     num_classes,
     output_file_prob=None,
-    prob_drop_bg=False,
+    prob_drop_bg=False,  # noqa: FBT002
 ):
     """Args:
     filename (string): path to file to read with GDAL
@@ -107,13 +107,13 @@ def read_image_gdal(
     return img, seg_map, seg_map_prob
 
 
-def smp_infer(
+def smp_infer(  # noqa: PLR0912
     data_dir,
     input_model_path,
     num_classes,
     output_path,
     output_path_prob=None,
-    prob_drop_bg=False,
+    prob_drop_bg=False,  # noqa: FBT002
 ):
     """Args:
     data_dir (string): root folder with training data
@@ -231,9 +231,7 @@ def smp_infer(
                     mask_probs = mask_probs[1:, :, :]
                 # Scale [0 1] to [0 100] -> to allow saving tif as byte
                 # Note: cutting digits to integer
-                mask_probs_scaled = (
-                    (mask_probs * 100).round().astype(np.uint8)
-                )
+                mask_probs_scaled = (mask_probs * 100).round().astype(np.uint8)
                 mask_probs_scaled[:, nan_mask] = 255
 
             # -- discrete classes (one class value per pixel)
