@@ -8,4 +8,4 @@ jobs:
   generate-third-party-licenses:
     uses: mundialis/github-workflows/.github/workflows/third-party-licenses.yml@main
     with:
-      requirements: requirements.txt
+      pyproject: pyproject.toml
