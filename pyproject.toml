@@ -22,11 +22,12 @@ classifiers = [
 ]
 
 dependencies = [
+  "opencv-python-headless>=4.13.0.92", # for albumentations
   "albumentations", # tested with 2.0.8
   "matplotlib", # tested with 3.9.3
-  "numpy==1.26.4", # numpy < 2.0.0 required for torch/pytorch-lightning
+  "numpy>=2.0,<3.0", # last tested with numpy==1.26.4 (fitting torch/pytorch-lightning)
   "segmentation_models.pytorch", # tested with 0.5.0
-  "torch", # tested with 2.2.1
+  "torch>2.3", # last tested with 2.2.1
   "pandas", # tested with 2.3.3
   "pytorch-lightning", # tested with 2.5.3
 ]
