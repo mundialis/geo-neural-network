@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "opencv-python-headless==4.14.0.94", # for albumentations
+  "opencv-python-headless==5.0.0.93", # for albumentations
   "albumentations", # tested with 2.0.8
   "matplotlib", # tested with 3.9.3
   "numpy>=2.0,<3.0", # last tested with numpy==1.26.4 (fitting torch/pytorch-lightning)
