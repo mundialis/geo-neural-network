@@ -8,3 +8,9 @@ jobs:
     with:
       VALIDATE_JAVASCRIPT_STANDARD: false
       BASH_SEVERITY: 'warning'
+    # the workflow requires permissions that need to be granted by the parent job:
+    permissions:
+      contents: read
+      packages: read
+      # To report GitHub Actions status checks
+      statuses: write
