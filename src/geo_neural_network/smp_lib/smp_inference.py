@@ -136,11 +136,6 @@ def smp_infer(  # noqa: PLR0912
 
     # Load pretrained model and preprocessing function
     model = smp.from_pretrained(input_model_path).eval().to(device)
-    # preprocessing = A.Compose.from_pretrained(MODEL_PATH)
-    # print("Preprocessing:\n", preprocessing)
-
-    mean = 125.5
-    std = 100.2
 
     # GDAL driver to write outputs
     driver = gdal.GetDriverByName("GTiff")
@@ -194,10 +189,9 @@ def smp_infer(  # noqa: PLR0912
         )
         # print(f"image shape: {image.shape}")
         # Preprocess image
-        # normalized_image = preprocessing(image=image)["image"]
-        normalized_image = (image.astype(np.float32) - mean) / std
+        scaled_image = image.astype(np.float32) / 255.0
 
-        input_tensor = torch.as_tensor(normalized_image)
+        input_tensor = torch.as_tensor(scaled_image)
         # image is already CHW
         # input_tensor = input_tensor.permute(2, 0, 1).unsqueeze(0)
         #       HWC -> BCHW

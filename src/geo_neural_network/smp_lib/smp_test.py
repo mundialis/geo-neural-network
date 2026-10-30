@@ -162,9 +162,8 @@ def evaluate_model(
             # Move data to device
             images = im.to(device)
 
-            # Normalize images
-            images = images.float()
-            images = (images - 125.5) / 100.2
+            # Scale images
+            images = images.float() / 255.0
 
             masks = ma.to(device)
 
