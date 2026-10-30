@@ -211,18 +211,6 @@ class PlModule(pl.LightningModule):
         super().__init__()
         self.model = model
 
-        # Preprocessing parameters for image normalization
-        # params = smp.encoders.get_preprocessing_params(encoder_name)
-        self.number_of_classes = out_classes
-        # self.register_buffer(
-        #     "std", torch.tensor(params["std"]).view(1, 3, 1, 1)
-        # )
-        # self.register_buffer(
-        #     "mean", torch.tensor(params["mean"]).view(1, 3, 1, 1)
-        # )
-        self.mean = 125.5
-        self.std = 100.2
-
         if out_classes > 1:
             # Loss function for multi-class segmentation
             self.loss_fn = smp.losses.JaccardLoss(
@@ -251,9 +239,8 @@ class PlModule(pl.LightningModule):
 
     def forward(self, image):
         """Forward."""
-        # Normalize image
-        image = image.float()
-        image = (image - self.mean) / self.std
+        # Scale image
+        image = image.float() / 255.0
         return self.model(image)
 
     # ruff:noqa:ARG002 # Unused method argument
